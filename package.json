@@ -1,0 +1,49 @@
+{
+  "name": "technoblog",
+  "version": "1.0.0",
+  "description": "A modern blogging platform with a clean architecture.",
+  "main": "./src/server.ts",
+  "type": "module",
+  "scripts": {
+    "build": "prisma generate --schema=./src/prisma/schema.prisma && tsc",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "lint": "eslint . --config eslint.config.js",
+    "lint:fix": "eslint . --config eslint.config.js --fix",
+    "prisma:generate": "prisma generate --schema=./src/prisma/schema.prisma",
+    "prisma:seed": "ts-node src/prisma/seed.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "prisma": "^6.7.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@stylistic/eslint-plugin": "^4.2.0",
+    "@tsconfig/node22": "^22.0.1",
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.18",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.0.0-alpha.0",
+    "globals": "^16.1.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "prisma": {
+    "schema": "./src/prisma/schema.prisma",
+    "seed": "tsx src/prisma/seed.js"
+  }
+}

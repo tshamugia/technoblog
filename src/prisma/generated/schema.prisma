@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String
+  name          String?
+  bio           String?
+  avatarUrl     String?
+  role          String         @default("user") // user, admin, moderator
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  posts         Post[] // one user -> many posts
+  comments      Comment[] // one user -> many comments
+  likes         Like[] // one user -> many likes
+  subscriptions Subscription[] // one user -> many subscriptions (optional)
+
+  @@index([email]) // optimization for email searches
+}
+
+// Post model
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  authorId  Int
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  status    String    @default("draft") // draft, published, rejected
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comments  Comment[] // one post -> many comments
+  likes     Like[] // one post -> many likes
+  postTags  PostTag[] // many-to-many with tags
+
+  @@index([authorId]) // optimization for authorId searches
+}
+
+// Comment model
+model Comment {
+  id              Int       @id @default(autoincrement())
+  content         String
+  postId          Int
+  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId        Int
+  author          User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentCommentId Int? // Threaded comments (optional)
+  parentComment   Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         Comment[] @relation("CommentReplies") // replies to comment
+  status          String    @default("pending") // pending, approved, rejected
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  likes           Like[] // one comment -> many likes
+
+  @@index([postId]) // optimization for postId searches
+  @@index([authorId]) // optimization for authorId searches
+}
+
+// Like model
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    Int?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId Int?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId]) // optimization for userId searches
+  @@index([postId]) // optimization for postId searches
+  @@index([commentId]) // optimization for commentId searches
+}
+
+// Tag model
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  postTags  PostTag[] // many-to-many with posts
+}
+
+// PostTag model (junction table for many-to-many relationship)
+model PostTag {
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId  Int
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([postId]) // optimization for postId searches
+  @@index([tagId]) // optimization for tagId searches
+}
+
+// Subscription model
+model Subscription {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}

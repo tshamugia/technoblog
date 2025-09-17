@@ -1,0 +1,54 @@
+/* Featured Posts Carousel Styles */
+.embla {
+  overflow: hidden;
+}
+
+.embla__container {
+  display: flex;
+  touch-action: pan-y pinch-zoom;
+}
+
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.embla__slide__content {
+  height: 100%;
+}
+
+/* Smooth scrolling behavior */
+.embla__container.embla__container--dragging {
+  cursor: grabbing;
+}
+
+.embla__container:not(.embla__container--dragging) {
+  cursor: grab;
+}
+
+/* Responsive breakpoints for slides */
+@media (min-width: 768px) {
+  .embla__slide {
+    flex: 0 0 50%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .embla__slide {
+    flex: 0 0 33.333333%;
+  }
+}
+
+/* Animation for dots */
+.carousel-dot {
+  transition: all 0.2s ease-in-out;
+}
+
+.carousel-dot:hover {
+  transform: scale(1.2);
+}
+
+/* Ensure slides maintain consistent height */
+.embla__slide > * {
+  height: 100%;
+}

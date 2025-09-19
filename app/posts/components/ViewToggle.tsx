@@ -57,7 +57,7 @@ export default function ViewToggle({
                 "h-8 px-3 text-xs font-medium transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                  : "hover:bg-muted/50 text-muted-foreground hover:text-foreground",
               )}
               title={option.description}
             >

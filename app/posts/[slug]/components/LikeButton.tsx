@@ -41,14 +41,14 @@ export default function LikeButton({
         className={cn(
           "h-9 px-3 transition-all duration-200",
           isLiked && "bg-red-500 hover:bg-red-600 text-white",
-          isAnimating && "scale-110"
+          isAnimating && "scale-110",
         )}
       >
         <Heart
           className={cn(
             "h-4 w-4 mr-2 transition-all duration-200",
             isLiked && "fill-current",
-            isAnimating && "animate-pulse"
+            isAnimating && "animate-pulse",
           )}
         />
         <span className="font-medium">{likeCount}</span>
@@ -123,7 +123,7 @@ export function VoteButtons({
         onClick={() => handleVote("up")}
         className={cn(
           "h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/20",
-          userVote === "up" && "bg-green-500 text-white hover:bg-green-600"
+          userVote === "up" && "bg-green-500 text-white hover:bg-green-600",
         )}
       >
         <ThumbsUp className="h-4 w-4" />
@@ -133,7 +133,7 @@ export function VoteButtons({
         className={cn(
           "text-sm font-semibold tabular-nums",
           score > 0 && "text-green-600 dark:text-green-400",
-          score < 0 && "text-red-600 dark:text-red-400"
+          score < 0 && "text-red-600 dark:text-red-400",
         )}
       >
         {score > 0 ? `+${score}` : score}
@@ -145,7 +145,7 @@ export function VoteButtons({
         onClick={() => handleVote("down")}
         className={cn(
           "h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/20 rotate-180",
-          userVote === "down" && "bg-red-500 text-white hover:bg-red-600"
+          userVote === "down" && "bg-red-500 text-white hover:bg-red-600",
         )}
       >
         <ThumbsUp className="h-4 w-4" />

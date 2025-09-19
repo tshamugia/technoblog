@@ -1,10 +1,19 @@
 "use client";
 
-import { Menu, Search, User } from "lucide-react";
+import { LogOut, Menu, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -14,6 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
 import type { NavigationItem } from "@/types";
 
 const navigationItems: NavigationItem[] = [
@@ -26,6 +36,7 @@ const navigationItems: NavigationItem[] = [
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +44,65 @@ export default function Header() {
       // TODO: Implement search navigation
       console.log("Searching for:", searchQuery);
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
+
+  // User Avatar Component
+  const UserAvatar = () => {
+    if (!user) return null;
+
+    const getInitials = (name: string) => {
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    };
+
+    return (
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={user.image || ""} alt={user.name || "User"} />
+        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+          {user.name ? getInitials(user.name) : "U"}
+        </AvatarFallback>
+      </Avatar>
+    );
+  };
+
+  // User Menu Component
+  const UserMenu = () => {
+    if (!user) return null;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <UserAvatar />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <div className="flex items-center justify-start gap-2 p-2">
+            <div className="flex flex-col space-y-1 leading-none">
+              {user.name && <p className="font-medium text-sm">{user.name}</p>}
+              {user.email && (
+                <p className="w-[200px] truncate text-xs text-muted-foreground">
+                  {user.email}
+                </p>
+              )}
+            </div>
+          </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="cursor-pointer" onSelect={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Sign out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   };
 
   return (
@@ -94,30 +164,38 @@ export default function Header() {
 
           {/* Auth Buttons */}
           <div className="hidden sm:flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`cursor-pointer ${
-                pathname === "/auth/login"
-                  ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
-                  : "text-foreground/80 hover:text-foreground hover:bg-accent"
-              }`}
-              asChild
-            >
-              <Link href="/auth/login">Login</Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`cursor-pointer ${
-                pathname === "/auth/register"
-                  ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
-                  : "text-foreground/80 hover:text-foreground hover:bg-accent"
-              }`}
-              asChild
-            >
-              <Link href="/auth/register">Register</Link>
-            </Button>
+            {isLoading ? (
+              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+            ) : isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`cursor-pointer ${
+                    pathname === "/auth/login"
+                      ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+                      : "text-foreground/80 hover:text-foreground hover:bg-accent"
+                  }`}
+                  asChild
+                >
+                  <Link href="/auth/login">Login</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`cursor-pointer ${
+                    pathname === "/auth/register"
+                      ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+                      : "text-foreground/80 hover:text-foreground hover:bg-accent"
+                  }`}
+                  asChild
+                >
+                  <Link href="/auth/register">Register</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -148,31 +226,64 @@ export default function Header() {
                 ))}
                 <div className="pt-4 border-t">
                   <div className="flex flex-col space-y-2">
-                    <Button
-                      variant="ghost"
-                      className={`justify-start cursor-pointer ${
-                        pathname === "/auth/login"
-                          ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
-                          : "text-foreground/80 hover:text-foreground hover:bg-accent"
-                      }`}
-                      asChild
-                    >
-                      <Link href="/auth/login" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        Login
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className={`justify-start cursor-pointer ${
-                        pathname === "/auth/register"
-                          ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
-                          : "text-foreground/80 hover:text-foreground hover:bg-accent"
-                      }`}
-                      asChild
-                    >
-                      <Link href="/auth/register">Register</Link>
-                    </Button>
+                    {isLoading ? (
+                      <div className="h-8 bg-muted animate-pulse rounded" />
+                    ) : isAuthenticated ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3 px-3 py-2 rounded-md bg-muted/50">
+                          <UserAvatar />
+                          <div className="flex flex-col space-y-1 leading-none">
+                            {user?.name && (
+                              <p className="font-medium text-sm">{user.name}</p>
+                            )}
+                            {user?.email && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {user.email}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="justify-start cursor-pointer text-foreground/80 hover:text-foreground hover:bg-accent"
+                          onClick={handleSignOut}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Sign out
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          className={`justify-start cursor-pointer ${
+                            pathname === "/auth/login"
+                              ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+                              : "text-foreground/80 hover:text-foreground hover:bg-accent"
+                          }`}
+                          asChild
+                        >
+                          <Link
+                            href="/auth/login"
+                            className="flex items-center"
+                          >
+                            <User className="mr-2 h-4 w-4" />
+                            Login
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className={`justify-start cursor-pointer ${
+                            pathname === "/auth/register"
+                              ? "bg-blue-600 hover:bg-blue-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+                              : "text-foreground/80 hover:text-foreground hover:bg-accent"
+                          }`}
+                          asChild
+                        >
+                          <Link href="/auth/register">Register</Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </nav>

@@ -26,7 +26,7 @@ export default function TagFilters({
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredTags = tags.filter((tag) =>
-    tag.name.toLowerCase().includes(searchQuery.toLowerCase())
+    tag.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleTagClick = (tagId: string) => {
@@ -117,7 +117,7 @@ export default function TagFilters({
                   "cursor-pointer text-xs px-2 py-1 transition-colors",
                   isSelected
                     ? "bg-primary text-primary-foreground hover:bg-primary/80"
-                    : "hover:bg-secondary/80"
+                    : "hover:bg-secondary/80",
                 )}
                 onClick={() => handleTagClick(tag.id)}
               >

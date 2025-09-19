@@ -1,30 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import SocialAuthButtons from "../components/SocialAuthButtons";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSocialAuth = async (provider: "google" | "github") => {
-    setIsLoading(true);
-    try {
-      // Simulate social auth
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(`Social signup with ${provider}`);
-
-      // Mock success - redirect to dashboard
-      router.push("/dashboard");
-    } catch (error) {
-      console.error(`${provider} auth failed:`, error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -36,11 +15,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Social Auth */}
-      <SocialAuthButtons
-        mode="register"
-        onSocialAuth={handleSocialAuth}
-        isLoading={isLoading}
-      />
+      <SocialAuthButtons mode="register" />
 
       {/* Login Link */}
       <div className="text-center">

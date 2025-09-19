@@ -1,12 +1,12 @@
 import { ArrowLeft, Calendar, Clock, Eye, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import CodeBlock from "@/components/CodeBlock";
+import CodeBlock from "@/app/posts/[slug]/components/CodeBlock";
+import VideoPlayer from "@/app/posts/[slug]/components/VideoPlayer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import VideoPlayer from "@/components/VideoPlayer";
 import type { Post } from "@/types";
 
 interface ArticleProps {
@@ -89,7 +89,7 @@ function renderContent(content: string) {
       .replace(/`(.*?)`/g, "<code>$1</code>")
       .replace(
         /\[(.*?)\]\((.*?)\)/g,
-        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
       )
       .replace(/\n\n/g, "</p><p>")
       .replace(/^\s*[-\*\+] (.*)$/gm, "<li>$1</li>")

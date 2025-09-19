@@ -1,27 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import Article from "@/components/Article";
-import Comments from "@/components/Comments";
-import LikeButton, { VoteButtons } from "@/components/LikeButton";
-import RelatedPostsSidebar from "@/components/RelatedPostsSidebar";
-import ShareButtons from "@/components/ShareButtons";
+import Article from "@/app/posts/[slug]/components/Article";
+import Comments from "@/app/posts/[slug]/components/Comments";
+import LikeButton, {
+  VoteButtons,
+} from "@/app/posts/[slug]/components/LikeButton";
+import RelatedPostsSidebar from "@/app/posts/[slug]/components/RelatedPostsSidebar";
+import ShareButtons from "@/app/posts/[slug]/components/ShareButtons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { mockPostDetailsData } from "@/lib/mock-data";
+
 import type { PostDetailsData } from "@/types";
 
-interface PostDetailsClientProps {
-  slug: string;
-  initialData?: PostDetailsData;
+interface Props {
+  initialData: PostDetailsData;
 }
 
-export default function PostDetailsClient({
-  slug,
-  initialData = mockPostDetailsData,
-}: PostDetailsClientProps) {
-  const [postData, setPostData] = useState(initialData);
-  const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
+export default function PostDetailsClient({ initialData }: Props) {
+  const [postData, setPostData] = useState(initialData.post);
+  const [userVote, setUserVote] = useState<"up" | "down" | null>(
+    initialData.userVote?.value === 1
+      ? "up"
+      : initialData.userVote?.value === -1
+        ? "down"
+        : null,
+  );
 
   const handleToggleLike = async (postId: string) => {
     // Simulate API call
@@ -40,7 +44,7 @@ export default function PostDetailsClient({
     console.log(
       "Add comment:",
       content,
-      parentId ? `reply to ${parentId}` : "new comment"
+      parentId ? `reply to ${parentId}` : "new comment",
     );
     // In a real app, this would make an API call and update the comments
   };
@@ -54,7 +58,7 @@ export default function PostDetailsClient({
         <main className="flex-1 max-w-4xl">
           <div className="space-y-8">
             {/* Article */}
-            <Article post={postData.post} />
+            <Article post={postData} />
 
             <Separator />
 
@@ -63,15 +67,15 @@ export default function PostDetailsClient({
               {/* Voting/Likes */}
               <div className="flex items-center space-x-4">
                 <LikeButton
-                  postId={postData.post.id}
+                  postId={postData.id}
                   isLiked={false} // In real app, get from user data
-                  likeCount={postData.post.upvote_count || 0}
+                  likeCount={postData.upvote_count || 0}
                   onToggleLike={handleToggleLike}
                 />
 
                 <VoteButtons
-                  postId={postData.post.id}
-                  upvotes={postData.post.upvote_count || 0}
+                  postId={postData.id}
+                  upvotes={postData.upvote_count || 0}
                   downvotes={5} // Mock downvotes
                   userVote={userVote}
                   onVote={handleVote}
@@ -81,8 +85,8 @@ export default function PostDetailsClient({
               {/* Share Buttons */}
               <ShareButtons
                 url={currentUrl}
-                title={postData.post.title}
-                description={postData.post.snippet}
+                title={postData.title}
+                description={postData.snippet}
               />
             </div>
 
@@ -90,7 +94,7 @@ export default function PostDetailsClient({
 
             {/* Comments Section */}
             <Comments
-              comments={postData.comments}
+              comments={initialData.comments}
               onAddComment={handleAddComment}
             />
           </div>
@@ -105,19 +109,17 @@ export default function PostDetailsClient({
               <div className="flex items-start space-x-3">
                 <Avatar className="w-12 h-12">
                   <AvatarImage
-                    src={postData.post.author.avatar_url}
-                    alt={postData.post.author.display_name}
+                    src={postData.author.avatar_url}
+                    alt={postData.author.display_name}
                   />
                   <AvatarFallback>
-                    {postData.post.author.display_name.charAt(0)}
+                    {postData.author.display_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">
-                    {postData.post.author.display_name}
-                  </p>
+                  <p className="font-medium">{postData.author.display_name}</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {postData.post.author.bio}
+                    {postData.author.bio}
                   </p>
                 </div>
               </div>
@@ -142,7 +144,10 @@ export default function PostDetailsClient({
             </div>
           </div>
 
-          <RelatedPostsSidebar posts={postData.relatedPosts} className="mb-8" />
+          <RelatedPostsSidebar
+            posts={initialData.relatedPosts}
+            className="mb-8"
+          />
         </aside>
       </div>
     </div>

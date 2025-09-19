@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { mockAboutData } from "@/lib";
 import type { TeamMember } from "@/types";
 
 function TeamMemberCard({ member }: { member: TeamMember }) {
@@ -89,7 +88,78 @@ function StatsCard({
 }
 
 export default function AboutPage() {
-  const { mission, vision, values, team, contact, stats } = mockAboutData;
+  // Static about data
+  const aboutData = {
+    mission:
+      "Empowering developers and technology enthusiasts with cutting-edge insights, practical tutorials, and in-depth analysis of the latest trends in software development, AI, and emerging technologies.",
+    vision:
+      "To become the leading platform where developers discover, learn, and share knowledge that shapes the future of technology.",
+    values: [
+      {
+        title: "Quality First",
+        description:
+          "We prioritize high-quality, well-researched content that provides real value to our readers.",
+      },
+      {
+        title: "Community Driven",
+        description:
+          "Our platform thrives on community contributions and collaborative learning.",
+      },
+      {
+        title: "Innovation Focus",
+        description:
+          "We stay ahead of the curve, covering emerging technologies and innovative solutions.",
+      },
+      {
+        title: "Practical Learning",
+        description:
+          "Every article includes practical examples and actionable insights you can apply immediately.",
+      },
+    ],
+    team: [
+      {
+        id: "1",
+        name: "Alex Chen",
+        role: "Lead Developer & Founder",
+        bio: "Full-stack developer with 8+ years of experience in React, Node.js, and cloud architecture.",
+        avatar_url:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+        skills: ["React", "Node.js", "TypeScript", "AWS"],
+        social_links: {
+          twitter: "https://twitter.com/alexchen",
+          linkedin: "https://linkedin.com/in/alexchen",
+          github: "https://github.com/alexchen",
+        },
+      },
+      {
+        id: "2",
+        name: "Sarah Johnson",
+        role: "AI/ML Specialist",
+        bio: "Data scientist and machine learning engineer passionate about democratizing AI knowledge.",
+        avatar_url:
+          "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+        skills: ["Python", "TensorFlow", "PyTorch", "MLOps"],
+        social_links: {
+          twitter: "https://twitter.com/sarahjohnson",
+          linkedin: "https://linkedin.com/in/sarahjohnson",
+          website: "https://sarahjohnson.dev",
+        },
+      },
+    ],
+    contact: {
+      email: "hello@technoblog.dev",
+      phone: "+1 (555) 123-4567",
+      address: "123 Tech Street, Silicon Valley, CA 94000",
+    },
+    stats: {
+      posts_published: 150,
+      authors: 12,
+      readers: 50000,
+      years_active: 3,
+    },
+  };
+
+  const { mission, vision, values, team, contact, stats } = aboutData;
 
   return (
     <div className="container mx-auto px-4 py-8 pt-24">
@@ -142,8 +212,13 @@ export default function AboutPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {values.map((value, index) => (
             <Card key={index}>
-              <CardContent className="pt-6">
-                <p className="text-muted-foreground leading-relaxed">{value}</p>
+              <CardHeader>
+                <CardTitle className="text-lg">{value.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed">
+                  {value.description}
+                </p>
               </CardContent>
             </Card>
           ))}

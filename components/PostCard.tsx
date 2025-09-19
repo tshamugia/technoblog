@@ -46,7 +46,7 @@ export function PostCard({
       className={cn(
         "group hover:shadow-lg transition-all duration-200 overflow-hidden",
         isFeatured && "border-primary",
-        className
+        className,
       )}
     >
       {/* Cover Image */}
@@ -72,42 +72,65 @@ export function PostCard({
       )}
 
       <CardHeader className={cn("pb-2", isCompact && "py-3")}>
-        {/* Author Info */}
+        {/* Meta Info */}
         {showAuthor && (
           <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
-            <Avatar className="h-6 w-6">
+            <time dateTime={post.published_at || post.updated_at}>
+              {formatDate(post.published_at || post.updated_at)}
+            </time>
+            {post.reading_time_ms && (
+              <>
+                <span>•</span>
+                <div className="flex items-center space-x-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{formatReadingTime(post.reading_time_ms)}</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Title with Avatar */}
+        <Link href={`/posts/${post.slug}`}>
+          <div className="flex items-start space-x-3 group/title">
+            <Avatar
+              className={cn(
+                "flex-shrink-0 transition-transform group-hover/title:scale-105",
+                isFeatured ? "h-10 w-10" : "h-8 w-8",
+                isCompact && "h-6 w-6",
+              )}
+            >
               <AvatarImage
                 src={post.author.avatar_url}
                 alt={post.author.display_name}
               />
-              <AvatarFallback className="text-xs">
+              <AvatarFallback
+                className={cn(
+                  "text-primary-foreground bg-primary font-medium",
+                  isFeatured ? "text-sm" : "text-xs",
+                  isCompact && "text-xs",
+                )}
+              >
                 {post.author.display_name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <Link
-              href={`/authors/${post.author.id}`}
-              className="hover:text-primary transition-colors"
-            >
-              {post.author.display_name}
-            </Link>
-            <span>•</span>
-            <time dateTime={post.published_at || post.updated_at}>
-              {formatDate(post.published_at || post.updated_at)}
-            </time>
+            <div className="flex-1 min-w-0">
+              <h3
+                className={cn(
+                  "font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors",
+                  isFeatured ? "text-xl" : "text-lg",
+                  isCompact && "text-base",
+                )}
+              >
+                {post.title}
+              </h3>
+              {!isCompact && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  by {post.author.display_name}
+                </p>
+              )}
+            </div>
           </div>
-        )}
-
-        {/* Title */}
-        <Link href={`/posts/${post.slug}`}>
-          <h3
-            className={cn(
-              "font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors",
-              isFeatured ? "text-xl" : "text-lg",
-              isCompact && "text-base"
-            )}
-          >
-            {post.title}
-          </h3>
         </Link>
       </CardHeader>
 

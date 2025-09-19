@@ -67,16 +67,15 @@ export function FeaturedPosts({ posts, className }: FeaturedNewsProps) {
   return (
     <section className={className}>
       {/* Fullscreen Carousel Container */}
-
       <div
-        className="relative h-screen w-full overflow-hidden"
+        className="relative h-screen w-full overflow-hidden embla"
         ref={emblaRef}
         onMouseEnter={() => setIsPlaying(false)}
         onMouseLeave={() => setIsPlaying(true)}
       >
-        <div className="flex h-full">
+        <div className="flex h-full embla__container">
           {posts.map((post) => (
-            <div key={post.id} className="flex-none w-full h-full">
+            <div key={post.id} className="flex-none w-full h-full embla__slide">
               <NewsCard post={post} />
             </div>
           ))}

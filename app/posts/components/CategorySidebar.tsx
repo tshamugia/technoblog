@@ -3,8 +3,12 @@
 import {
   Brain,
   Cloud,
-  Coins,
+  Code,
+  Cpu,
+  Database,
+  Globe,
   Layout,
+  Monitor,
   Server,
   Smartphone,
   Tag,
@@ -29,7 +33,11 @@ const categoryIcons = {
   Cloud,
   Smartphone,
   Brain,
-  Coins,
+  Code,
+  Database,
+  Globe,
+  Cpu,
+  Monitor,
 } as const;
 
 export default function CategorySidebar({
@@ -60,21 +68,39 @@ export default function CategorySidebar({
           variant={!selectedCategory ? "default" : "ghost"}
           onClick={() => onCategorySelect(undefined)}
           className={cn(
-            "w-full justify-start text-left",
-            !selectedCategory && "bg-primary text-primary-foreground"
+            "w-full justify-start text-left h-auto p-3",
+            !selectedCategory && "bg-primary text-primary-foreground",
           )}
         >
-          <Layout className="mr-2 h-4 w-4" />
-          All Posts
-          <Badge variant="secondary" className="ml-auto">
-            {categories.reduce((total, cat) => total + cat.post_count, 0)}
-          </Badge>
+          <div className="flex items-start space-x-3 w-full">
+            <Layout className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-sm">All Posts</span>
+                <Badge
+                  variant={!selectedCategory ? "outline" : "secondary"}
+                  className={cn(
+                    "text-xs ml-2 flex-shrink-0",
+                    !selectedCategory &&
+                      "border-primary-foreground/20 text-primary-foreground",
+                  )}
+                >
+                  {categories.reduce((total, cat) => total + cat.post_count, 0)}
+                </Badge>
+              </div>
+              <p className="text-xs mt-1 leading-relaxed opacity-80">
+                <span className="text-muted-foreground">
+                  Browse all our articles across every topic
+                </span>
+              </p>
+            </div>
+          </div>
         </Button>
 
         <Separator />
 
         {/* Categories List */}
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[450px]">
           <div className="space-y-2">
             {categories.map((category) => {
               const IconComponent =
@@ -89,7 +115,7 @@ export default function CategorySidebar({
                   onClick={() => handleCategoryClick(category.id)}
                   className={cn(
                     "w-full justify-start text-left h-auto p-3",
-                    isSelected && "bg-primary text-primary-foreground"
+                    isSelected && "bg-primary text-primary-foreground",
                   )}
                 >
                   <div className="flex items-start space-x-3 w-full">
@@ -109,15 +135,17 @@ export default function CategorySidebar({
                           className={cn(
                             "text-xs ml-2 flex-shrink-0",
                             isSelected &&
-                              "border-primary-foreground/20 text-primary-foreground"
+                              "border-primary-foreground/20 text-primary-foreground",
                           )}
                         >
                           {category.post_count}
                         </Badge>
                       </div>
                       {category.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {category.description}
+                        <p className="text-xs mt-1 leading-relaxed opacity-80">
+                          <span className="text-muted-foreground">
+                            {category.description}
+                          </span>
                         </p>
                       )}
                     </div>

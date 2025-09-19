@@ -64,7 +64,7 @@ function CommentItem({ comment, onReply, level = 0 }: CommentItemProps) {
     <div
       className={cn(
         "space-y-4",
-        level > 0 && "ml-6 border-l border-border pl-4"
+        level > 0 && "ml-6 border-l border-border pl-4",
       )}
     >
       {/* Comment */}

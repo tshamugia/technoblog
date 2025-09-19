@@ -40,7 +40,7 @@ export interface Post {
   slug: string;
   content_md: string;
   content_mdx?: string;
-  cover_image_url?: string;
+  cover_image_url?: string | null;
   status: "draft" | "published" | "archived";
   published_at?: string;
   updated_at: string;
@@ -88,7 +88,7 @@ export interface FeaturedPost extends Post {
 export interface SidebarData {
   trendingTags: Tag[];
   recommendedPosts: Post[];
-  categories: Tag[];
+  categories: Category[];
 }
 
 // Response wrapper types for API consistency

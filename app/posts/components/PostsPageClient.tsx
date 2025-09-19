@@ -2,25 +2,29 @@
 
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
-import CategorySidebar from "@/components/CategorySidebar";
-import PostCardAdvanced from "@/components/PostCardAdvanced";
-import TagFilters from "@/components/TagFilters";
+import CategorySidebar from "@/app/posts/components/CategorySidebar";
+import TagFilters from "@/app/posts/components/TagFilters";
+import ViewToggle from "@/app/posts/components/ViewToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import ViewToggle from "@/components/ViewToggle";
-import { mockPostsPageData } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import type { Post, PostsFilter, ViewMode } from "@/types";
+import type { Category, Post, PostsFilter, Tag, ViewMode } from "@/types";
+import PostCardAdvanced from "./PostCardAdvanced";
 
-interface PostsPageClientProps {
-  initialData?: typeof mockPostsPageData;
+interface PostsPageData {
+  posts: Post[];
+  totalCount: number;
+  popularTags: Tag[];
+  categories: Category[];
 }
 
-export default function PostsPageClient({
-  initialData = mockPostsPageData,
-}: PostsPageClientProps) {
+interface PostsPageClientProps {
+  initialData: PostsPageData;
+}
+
+export default function PostsPageClient({ initialData }: PostsPageClientProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<PostsFilter>({});
@@ -37,7 +41,7 @@ export default function PostsPageClient({
         (post) =>
           post.title.toLowerCase().includes(query) ||
           post.snippet?.toLowerCase().includes(query) ||
-          post.author.display_name.toLowerCase().includes(query)
+          post.author.display_name.toLowerCase().includes(query),
       );
     }
 
@@ -49,8 +53,8 @@ export default function PostsPageClient({
         post.tags.some(
           (tag) =>
             tag.slug.includes(filters.category!) ||
-            tag.name.toLowerCase().includes(filters.category!.toLowerCase())
-        )
+            tag.name.toLowerCase().includes(filters.category!.toLowerCase()),
+        ),
       );
     }
 
@@ -58,8 +62,8 @@ export default function PostsPageClient({
     if (selectedTags.length > 0) {
       filtered = filtered.filter((post) =>
         selectedTags.some((selectedTagId) =>
-          post.tags.some((tag) => tag.id === selectedTagId)
-        )
+          post.tags.some((tag) => tag.id === selectedTagId),
+        ),
       );
     }
 
@@ -67,20 +71,20 @@ export default function PostsPageClient({
     switch (filters.sortBy) {
       case "popular":
         return filtered.sort(
-          (a, b) => (b.upvote_count || 0) - (a.upvote_count || 0)
+          (a, b) => (b.upvote_count || 0) - (a.upvote_count || 0),
         );
       case "oldest":
         return filtered.sort(
           (a, b) =>
             new Date(a.published_at || a.updated_at).getTime() -
-            new Date(b.published_at || b.updated_at).getTime()
+            new Date(b.published_at || b.updated_at).getTime(),
         );
       case "latest":
       default:
         return filtered.sort(
           (a, b) =>
             new Date(b.published_at || b.updated_at).getTime() -
-            new Date(a.published_at || a.updated_at).getTime()
+            new Date(a.published_at || a.updated_at).getTime(),
         );
     }
   }, [initialData.posts, searchQuery, filters, selectedTags]);
@@ -93,7 +97,7 @@ export default function PostsPageClient({
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+        : [...prev, tagId],
     );
   };
 
@@ -219,7 +223,7 @@ export default function PostsPageClient({
                     Category:{" "}
                     {
                       initialData.categories.find(
-                        (c) => c.id === filters.category
+                        (c) => c.id === filters.category,
                       )?.name
                     }
                   </span>

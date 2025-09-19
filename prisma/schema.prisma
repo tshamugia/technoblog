@@ -1,0 +1,329 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+// ========================================
+// Core User & Profile Models
+// ========================================
+
+model User {
+  id            String        @id @default(uuid()) @db.Uuid
+  email         String        @unique
+  emailVerified DateTime?     @map("email_verified")
+  name          String?
+  image         String?
+  username      String?       @unique
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  profile       Profile?
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  comments      Comment[]
+  votes         Vote[]
+  commentVotes  CommentVote[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
+  postRevisions PostRevision[] @relation("UserPostRevisions")
+  
+  // Following relationships
+  authorFollows AuthorFollow[] @relation("FollowerToAuthor")
+  authorFans    AuthorFollow[] @relation("AuthorToFollower")
+  tagFollows    TagFollow[]    @relation("UserTagFollows")
+  
+  // Audit trail
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model Profile {
+  id          String    @id @db.Uuid
+  email       String    @unique
+  name        String?
+  username    String?   @unique
+  image       String?
+  bio         String?
+  role        String    @default("user")
+  displayName String?   @map("display_name")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user        User      @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ========================================
+// NextAuth Models (Required)
+// ========================================
+
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refreshToken      String? @map("refresh_token") @db.Text
+  accessToken       String? @map("access_token") @db.Text
+  expiresAt         Int?    @map("expires_at")
+  idToken           String? @map("id_token") @db.Text
+  scope             String?
+  sessionState      String? @map("session_state")
+  tokenType         String? @map("token_type")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ========================================
+// Blog Content Models
+// ========================================
+
+model Post {
+  id               String    @id @default(uuid()) @db.Uuid
+  authorId         String    @map("author_id") @db.Uuid
+  title            String
+  slug             String    @unique
+  excerpt          String?
+  contentMd        String    @map("content_md") @db.Text
+  contentMdx       String?   @map("content_mdx") @db.Text
+  coverImageUrl    String?   @map("cover_image_url")
+  status           String    @default("DRAFT")
+  publishedAt      DateTime? @map("published_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  readingTimeMs    Int?      @map("reading_time_ms")
+  viewCount        Int       @default(0) @map("view_count")
+  commentCount     Int       @default(0) @map("comment_count")
+  upvoteCount      Int       @default(0) @map("upvote_count")
+  downvoteCount    Int       @default(0) @map("downvote_count")
+
+  // Relations
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  tags          PostTag[]
+  comments      Comment[]
+  votes         Vote[]
+  bookmarks     Bookmark[]
+  views         PostView[]
+  revisions     PostRevision[]
+
+  @@map("posts")
+  @@index([status, publishedAt])
+  @@index([authorId])
+  @@index([slug])
+}
+
+model Tag {
+  id          String    @id @default(uuid()) @db.Uuid
+  slug        String    @unique
+  name        String
+  description String?
+  color       String?   @default("#6B7280")
+  isOfficial  Boolean   @default(false) @map("is_official")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  posts     PostTag[]
+  followers TagFollow[]
+
+  @@map("tags")
+  @@index([slug])
+}
+
+model PostTag {
+  postId String @map("post_id") @db.Uuid
+  tagId  String @map("tag_id") @db.Uuid
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("post_tags")
+}
+
+model Comment {
+  id        String    @id @default(uuid()) @db.Uuid
+  postId    String    @map("post_id") @db.Uuid
+  authorId  String    @map("author_id") @db.Uuid
+  parentId  String?   @map("parent_id") @db.Uuid
+  body      String    @db.Text
+  status    String    @default("APPROVED")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  post          Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent        Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
+  replies       Comment[]     @relation("CommentReplies")
+  votes         CommentVote[]
+
+  @@map("comments")
+  @@index([postId])
+  @@index([authorId])
+  @@index([status])
+}
+
+model Vote {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("votes")
+}
+
+model CommentVote {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  commentId String   @map("comment_id") @db.Uuid
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@map("comment_votes")
+}
+
+model Bookmark {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@map("bookmarks")
+}
+
+model PostView {
+  postId String @map("post_id") @db.Uuid
+  date   DateTime @db.Date
+  count  Int      @default(0)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, date])
+  @@map("post_views")
+}
+
+// ========================================
+// Social Features
+// ========================================
+
+model AuthorFollow {
+  followerId String   @map("follower_id") @db.Uuid
+  authorId   String   @map("author_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  follower User @relation("FollowerToAuthor", fields: [followerId], references: [id], onDelete: Cascade)
+  author   User @relation("AuthorToFollower", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, authorId])
+  @@map("author_follows")
+}
+
+model TagFollow {
+  followerId String   @map("follower_id") @db.Uuid
+  tagId      String   @map("tag_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  follower User @relation("UserTagFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  tag      Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, tagId])
+  @@map("tag_follows")
+}
+
+// ========================================
+// System & Meta Models
+// ========================================
+
+model Notification {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  type        String
+  payloadJson Json?     @map("payload_json")
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model PostRevision {
+  id         String   @id @default(uuid()) @db.Uuid
+  postId     String   @map("post_id") @db.Uuid
+  contentMd  String   @map("content_md") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+  editedById String?  @map("edited_by_id") @db.Uuid
+
+  post     Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  editedBy User? @relation("UserPostRevisions", fields: [editedById], references: [id])
+
+  @@map("post_revisions")
+}
+
+model AuditLog {
+  id          String    @id @default(uuid()) @db.Uuid
+  actorId     String?   @map("actor_id") @db.Uuid
+  action      String
+  entityType  String    @map("entity_type")
+  entityId    String?   @map("entity_id") @db.Uuid
+  payloadJson Json?     @map("payload_json")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@map("audit_logs")
+}

@@ -1,4 +1,15 @@
-import { BookOpen, Hash, TrendingUp } from "lucide-react";
+import {
+  BookOpen,
+  Brain,
+  Cloud,
+  Database,
+  Globe,
+  Hash,
+  Layout,
+  Server,
+  Smartphone,
+  TrendingUp,
+} from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,22 +86,51 @@ export function Sidebar({ data, className }: SidebarProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {data.categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/categories/${category.slug}`}
-                  className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted transition-colors group"
-                >
-                  <span className="text-sm font-medium group-hover:text-primary">
-                    {category.name}
-                  </span>
-                  {category.post_count && (
-                    <Badge variant="outline" className="text-xs">
-                      {category.post_count}
-                    </Badge>
-                  )}
-                </Link>
-              ))}
+              {data.categories.map((category) => {
+                const categoryIcons = {
+                  Layout,
+                  Server,
+                  Cloud,
+                  Smartphone,
+                  Brain,
+                  Database,
+                  Globe,
+                } as const;
+
+                const IconComponent =
+                  categoryIcons[category.icon as keyof typeof categoryIcons] ||
+                  Hash;
+
+                return (
+                  <Link
+                    key={category.id}
+                    href={`/categories/${category.slug}`}
+                    className="flex items-start space-x-3 py-2 px-3 rounded-md hover:bg-muted transition-colors group"
+                  >
+                    <IconComponent
+                      className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground group-hover:text-primary"
+                      style={{ color: category.color }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium group-hover:text-primary">
+                          {category.name}
+                        </span>
+                        {category.post_count && (
+                          <Badge variant="outline" className="text-xs ml-2">
+                            {category.post_count}
+                          </Badge>
+                        )}
+                      </div>
+                      {category.description && (
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {category.description}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

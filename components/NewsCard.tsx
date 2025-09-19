@@ -27,30 +27,54 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ post, className }: NewsCardProps) {
+  // Generate a fallback background based on post index or ID
+  const backgroundGradients = [
+    "bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900",
+    "bg-gradient-to-br from-purple-900 via-purple-800 to-pink-900",
+    "bg-gradient-to-br from-green-900 via-green-800 to-emerald-900",
+    "bg-gradient-to-br from-red-900 via-red-800 to-orange-900",
+    "bg-gradient-to-br from-teal-900 via-teal-800 to-cyan-900",
+    "bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900",
+  ];
+
+  const fallbackBg =
+    backgroundGradients[parseInt(post.id) % backgroundGradients.length] ||
+    backgroundGradients[0];
+
   return (
     <div
       className={cn(
-        "relative h-screen w-full overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900",
-        className
+        "relative h-screen w-full overflow-hidden",
+        fallbackBg,
+        className,
       )}
     >
       {/* Background Image */}
-      {post.cover_image_url && (
-        <div className="absolute inset-0">
-          <Image
-            src={post.cover_image_url}
-            alt={post.title}
-            fill
-            className="object-cover opacity-40"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        </div>
-      )}
+      <div className="absolute inset-0">
+        {post.cover_image_url ? (
+          <>
+            <Image
+              src={post.cover_image_url}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-700 hover:scale-105"
+              priority
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        )}
+      </div>
 
       {/* Content Container */}
       <div className="relative z-10 h-full flex items-center">
-        <div className="container mx-auto px-4 py-20">
+        {/* Additional overlay for better text readability */}
+        <div className="absolute inset-0 carousel-background-overlay" />
+
+        <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="max-w-4xl mx-auto text-center text-white">
             {/* Category Badge */}
             {post.tags.length > 0 && (

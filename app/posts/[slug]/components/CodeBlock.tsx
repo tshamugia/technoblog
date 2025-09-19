@@ -35,37 +35,37 @@ export default function CodeBlock({
     // JavaScript/TypeScript highlighting
     if (
       ["javascript", "js", "typescript", "ts", "tsx", "jsx"].includes(
-        lang.toLowerCase()
+        lang.toLowerCase(),
       )
     ) {
       // Keywords
       highlightedCode = highlightedCode.replace(
         /\b(const|let|var|function|class|interface|type|export|import|from|as|default|if|else|for|while|return|async|await|try|catch|finally)\b/g,
-        '<span class="text-purple-600 dark:text-purple-400 font-semibold">$1</span>'
+        '<span class="text-purple-600 dark:text-purple-400 font-semibold">$1</span>',
       );
 
       // Strings
       highlightedCode = highlightedCode.replace(
         /(["'`])(?:(?=(\\?))\2.)*?\1/g,
-        '<span class="text-green-600 dark:text-green-400">$&</span>'
+        '<span class="text-green-600 dark:text-green-400">$&</span>',
       );
 
       // Numbers
       highlightedCode = highlightedCode.replace(
         /\b\d+\.?\d*\b/g,
-        '<span class="text-blue-600 dark:text-blue-400">$&</span>'
+        '<span class="text-blue-600 dark:text-blue-400">$&</span>',
       );
 
       // Comments
       highlightedCode = highlightedCode.replace(
         /\/\/.*$/gm,
-        '<span class="text-gray-500 dark:text-gray-400 italic">$&</span>'
+        '<span class="text-gray-500 dark:text-gray-400 italic">$&</span>',
       );
 
       // Functions
       highlightedCode = highlightedCode.replace(
         /\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g,
-        '<span class="text-yellow-600 dark:text-yellow-400">$1</span>'
+        '<span class="text-yellow-600 dark:text-yellow-400">$1</span>',
       );
     }
 
@@ -74,19 +74,19 @@ export default function CodeBlock({
       // Properties
       highlightedCode = highlightedCode.replace(
         /([a-zA-Z-]+)(\s*:)/g,
-        '<span class="text-blue-600 dark:text-blue-400">$1</span>$2'
+        '<span class="text-blue-600 dark:text-blue-400">$1</span>$2',
       );
 
       // Values
       highlightedCode = highlightedCode.replace(
         /(:\s*)([^;]+)(;?)/g,
-        '$1<span class="text-green-600 dark:text-green-400">$2</span>$3'
+        '$1<span class="text-green-600 dark:text-green-400">$2</span>$3',
       );
 
       // Selectors
       highlightedCode = highlightedCode.replace(
         /^([.#]?[a-zA-Z][a-zA-Z0-9-_]*)/gm,
-        '<span class="text-purple-600 dark:text-purple-400 font-semibold">$1</span>'
+        '<span class="text-purple-600 dark:text-purple-400 font-semibold">$1</span>',
       );
     }
 
@@ -95,19 +95,19 @@ export default function CodeBlock({
       // Tags
       highlightedCode = highlightedCode.replace(
         /<\/?([a-zA-Z][a-zA-Z0-9]*)/g,
-        '&lt;<span class="text-blue-600 dark:text-blue-400 font-semibold">$1</span>'
+        '&lt;<span class="text-blue-600 dark:text-blue-400 font-semibold">$1</span>',
       );
 
       // Attributes
       highlightedCode = highlightedCode.replace(
         /(\s)([a-zA-Z-]+)(=)/g,
-        '$1<span class="text-purple-600 dark:text-purple-400">$2</span>$3'
+        '$1<span class="text-purple-600 dark:text-purple-400">$2</span>$3',
       );
 
       // Attribute values
       highlightedCode = highlightedCode.replace(
         /(=)(["'])([^"']*)\2/g,
-        '$1$2<span class="text-green-600 dark:text-green-400">$3</span>$2'
+        '$1$2<span class="text-green-600 dark:text-green-400">$3</span>$2',
       );
     }
 
@@ -116,19 +116,19 @@ export default function CodeBlock({
       // Keys
       highlightedCode = highlightedCode.replace(
         /"([^"]+)"(\s*:)/g,
-        '<span class="text-blue-600 dark:text-blue-400">"$1"</span>$2'
+        '<span class="text-blue-600 dark:text-blue-400">"$1"</span>$2',
       );
 
       // String values
       highlightedCode = highlightedCode.replace(
         /(:\s*)"([^"]+)"/g,
-        '$1<span class="text-green-600 dark:text-green-400">"$2"</span>'
+        '$1<span class="text-green-600 dark:text-green-400">"$2"</span>',
       );
 
       // Numbers and booleans
       highlightedCode = highlightedCode.replace(
         /(:\s*)(\d+\.?\d*|true|false|null)/g,
-        '$1<span class="text-purple-600 dark:text-purple-400">$2</span>'
+        '$1<span class="text-purple-600 dark:text-purple-400">$2</span>',
       );
     }
 
